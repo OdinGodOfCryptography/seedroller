@@ -102,7 +102,7 @@ The script can be found in this repository [seedRoller_test.py](seedRoller_test.
 
 ![Seedroller test using python](test.png)
 
-Each roll of seven dice yields a number from zero to 2999. The figure above shows the number of times each of those values were rolled. The average value in the figure above can be seen to be about 3333 counts for each value, which for 3000 different values multiplies up to one billion. The minimum value is not zero, which means that no values between 0 and 2999 were omitted, alle were rolled several times. 
+Each roll of seven dice yields a number from zero to 2999. The figure above shows the number of times each of those values were rolled. The average value in the figure above can be seen to be about 3333 counts for each value, which for 3000 different values multiplies up to one billion. The minimum value is not zero, which means that no values between 0 and 2999 were omitted, all were rolled several times. 
 
 The spread of the values, which is assessed by the standard deviation calculated in the script, but not shown in the figure, shows that this is a good spread and that no values should be favourised. Which of course is mathematically true for neutral dice, but the point of this figure is to increase our own faith in this method before entrusting our hard earned bitcoin to these newly generated private keys derived from these rolled seeds. 
 
