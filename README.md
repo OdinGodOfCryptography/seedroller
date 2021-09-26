@@ -1,15 +1,27 @@
 # Rolling dice to generate seed phrases
 
-For increased safety of your bitcoin, one should generate the seed phrases in a truly random way. This proposed analog method uses six sided dice in a simpler and less tedious method than cutting out 2048 pieces of paper with each possible seed word and drawing them out of a hat.
+This proposed **experimental** method is an analog way of using dice to generate random seed phrases for bitcoin wallets. This proposed method uses six sided dice in an analog random way, as an alternative to the seedpicker.net way that draws raffle tickets out of a hat, described here [https://seedpicker.net/guide/GUIDE.html](https://seedpicker.net/guide/GUIDE.html). 
+
+Both methods use a system of getting a random result by a physical action and then finding seed words by looking up in a table. If you prefer rolling dice over cutting out pieces of printed paper and drawing them out of a hat, you could consider this method. 
+
+In both cases, the dice rolling method proposed here and in seedpicker's raffle ticket approach, you will need to calculate the 24th word in a 24 word seed phrase, as this is a checksum. Some hardware wallets calculate this for you, e.g. Coldcard, but if yours does not, you need to use a program such as [seedpicker.net/calculator/last-word.html](seedpicker.net/calculator/last-word.html). Please carefully read the excellent security advice at this seedpicker site before calculating the 24th word [https://seedpicker.net/guide/GUIDE.html](https://seedpicker.net/guide/GUIDE.html).
+
+Below I have structured this document in the following way
+
+- Description of the algorithm to use to generate the seed words.
+- Link to relevant resources
+- A part describing the mathematics of the algorithm with simulated results to increase the confidence of the reader in that the method does what it is supposed to do.
 
 
 ## Seven dice rolls gives a random seed word
-There are 2048 possible words in the BIP39 list, see [below](#bip39), that we should draw from in a random way a dozen or two dozen times. This simple method uses either seven six sided dice at once or seven rolls of one die to generate a truly random number between 1 and 2048, which then gives us a truly random BIP39 word, as random as drawing the word out of a hat.
+There are 2048 possible words in the BIP39 list, see [below](#bip39), that we should draw from as many times as the seed phrase is long minus one. For a 24 word seed you need 23 random words and then a way to calculate the last and 24th word, see above. 
 
-This algorithm was constructed after reading the very good tutorial on multisig bitcoin wallets [10x Security Bitcoin Guide](https://btcguide.github.io/), following the guiding principle that any amount of work spent making an algorithm is worth it to avoid doing repetetive tasks.
+This method uses either seven six sided dice rolled at once or seven rolls of one die to generate a truly random number between 1 and 2048, which then gives us a truly random BIP39 word, as random as drawing the word out of a hat.
+
+This algorithm was constructed after reading the very good tutorial on multisig bitcoin wallets [10x Security Bitcoin Guide](https://btcguide.github.io/).
 
 
-### The simple math
+### The math
 There are 2048 different values to roll. This dice rolling algorithm rolls a value from zero to 2999, and if you roll zero or above 2048, you **have to** reroll. The one way this algorithm fails is if you only reroll parts of the dice when exceeding the allowed values, that way some results will be more likely than others! So I must stress that if you roll a number outside of 1-2048, you **must reroll all the dice**.
 
 For the range from 0-2999, there are three thousand different values. This algorithm divides this number into four parts, four different numerals. The thousands, which can have values 0, 1 and 2, and the hundreds, tens and ones which each can have the values 0 to 9. 
@@ -65,7 +77,8 @@ An example roll could be:
 |------------------|--------|--------|-------|--------|-------|--------|-------|
 | example roll     | 2      | 5      | 1     | 2      | 1     | 1      | 6     |
 | re-rolled sixers |        |        |       |        |       |        | 1     |
-| Result           | 2 -> 0 | 5->5-9 | 1->1  | 2->0-4 | 1->0  | 1->0-4 | 1->0  |
+| Result           | 2 -> 0 | 5->5-9 | 1->1  | 2->0-4 | 1->0  | 1->
+The0-4 | 1->0  |
 
 The rolled number is 0100, which corresponds to word number 100 in the [BIP39](#bip39) list, which is "arrest". Voilá!
 
@@ -73,7 +86,22 @@ The rolled number is 0100, which corresponds to word number 100 in the [BIP39](#
 
 If the number rolled is zero or above 2048, you **must reroll all seven dice**! If you keep the thousands die of 2, and just reroll the other dice, the words 2000-2048 will be far more likely to roll than the rest, yielding an attack vector. So, please reroll everything.
 
-Do this 12 or 24 times and you have a random seed phrase.
+Do this 11 or 23 times and calculate the last word (in a secure way!) and you have a random seed phrase.
+
+
+
+## <a name="bip39"></a> BIP 39 list of words
+The official list of words can be found in the bitcoin core github repository of bips [https://github.com/bitcoin/bips.git](https://github.com/bitcoin/bips.git), which you can best get by cloning the repository. 
+
+You can also go to the file on github directly here [https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt](https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt) or at coldcard's github repository [https://github.com/Coldcard/wordlist-paper](https://github.com/Coldcard/wordlist-paper).
+
+I have also included the file in this repository, simply copied from bitcoin core bips repository, [english_bip39.txt](english_bip39.txt).
+
+All the words are numbered from 1 to 2048. You can print this and look it up with thine own eyes, or you can use your favourite program to search for the line number, e.g. emacs or firefox, however do make efforts to air-gap your computer as described in [https://seedpicker.net/guide/GUIDE.html](https://seedpicker.net/guide/GUIDE.html) if you do this on a computer. In emacs you can search by line number making for an easy lookup for each rolled number.
+
+In order to make it easier to look up a rolled number, I have made a new text file with the numbers explicitly numbered in [english_bip39_numbered.txt](english_bip39_numbered.txt). The python script to do this is included here as well [bip39_wordlist_line_numberer.py](bip39_wordlist_line_numberer.py)
+
+Being paranoid, it is wise to make an effort to make sure you have the correct list of words and not a tampered list.
 
 
 ## Entropy and randomness
@@ -82,7 +110,9 @@ Entropy is lack of order. Entropy is a function of the number of possible differ
 
 Computers today usually cannot generate true random numbers. The only way for a computer without specialized hardware to find a truly random number is through reading a list of random numbers, for example derived from samples of radioactive decay or lists of numbers rolled by dice.
 
-Random number generators are mathematical functions used by computers to generate a series of numbers that look quite random, but in fact can be reproduced. Our very own SHA256 hashing algorithm could be used for this, see this [calculator](https://xorbin.com/tools/sha256-hash-calculator). By using a string as input we get some output that looks like a random number (number in a broader sense), and by using that number as input the next time, we get a series of numbers that look random. If, however, we use the same seed phrase (the first string input) we can exactly reproduce the whole sequence of numbers. This is the way computers generate "random" numbers and there are some issues with this regarding security for generating seed phrases for bitcoin.
+Random number generators are mathematical functions used by computers to generate a series of numbers that look quite random, but in fact can be reproduced. Our very own SHA256 hashing algorithm could be used for this, see this [calculator](https://xorbin.com/tools/sha256-hash-calculator). By using a string as input we get some output that looks like a random number (number in a broader sense), and by using that number as input the next time, we get a series of numbers that look random. This is the main idea of deterministic wallets, that can generate all private keys from now until eternity using one seed.
+
+If, however, we use the same seed phrase (the first string input) we can exactly reproduce the whole sequence of numbers. This is the way computers generate "random" numbers and there are some issues with this regarding security for generating seed phrases for bitcoin.
 
 Wallets, both hardware and software, need some "entropy" in order to start generating "random" numbers. These "random" numbers are used to generate either the private keys directly, as in bitcoin core, or the seed phrase that in turn generates as many private keys as you could want for all eternity, using the result as input for the next procedure described above. This "entropy" that is needed is a list of more random values than just "1" or the time of day, so that the list of "random" numbers that is generated is hard to replicate. If someone replicates **your** list of "random" numbers, they can generate your seed phrase and steal all your funds. 
 
@@ -92,7 +122,7 @@ The main question of Marvin the paranoid android is always: **"but what if they 
 
 Even if the logic behind using dice rolls or some other method could lead to perfectly good ways of defining your seed phrase, a hardware wallet could always be compromised and generate a predetermined seed phrase, and the attacker could be sitting around waiting for his retirement attack. Therefore we should generate our own seeds randomly. 
 
-This method seems to me to be simpler and to be involving less work than cutting out pieces of paper with all 2048 words on them and drawing them from a hat. The main point of this repository is to show that this method using dice is as good as drawing the words out of a hat.
+The main point of this repository is provide an analog random way of generating seed phrases as an alternative to the already existing method proposed by seedpicker: [https://seedpicker.net/guide/GUIDE.html](https://seedpicker.net/guide/GUIDE.html).
 
 ## Does it work?
 
@@ -102,25 +132,11 @@ The script can be found in this repository [seedRoller_test.py](seedRoller_test.
 
 ![Seedroller test using python](test.png)
 
-Each roll of seven dice yields a number from zero to 2999. The figure above shows the number of times each of those values were rolled. The average value in the figure above can be seen to be about 3333 counts for each value, which for 3000 different values multiplies up to one billion. The minimum value is not zero, which means that no values between 0 and 2999 were omitted, all were rolled several times. 
+Each roll of seven dice yields a number from zero to 2999. The figure above shows the number of times each of those values were rolled. The average value in the figure above can be seen to be about 3333 counts for each value, which for 3000 different values multiplies up to one billion. The minimum value is not zero, which means that no values between 0 and 2999 were omitted, alle were rolled several times. 
 
 The spread of the values, which is assessed by the standard deviation calculated in the script, but not shown in the figure, shows that this is a good spread and that no values should be favourised. Which of course is mathematically true for neutral dice, but the point of this figure is to increase our own faith in this method before entrusting our hard earned bitcoin to these newly generated private keys derived from these rolled seeds. 
 
 
-
-### <a name="bip39"></a> BIP 39 list of words
-The official list of words can be found in the bitcoin core github repository of bips [https://github.com/bitcoin/bips.git](https://github.com/bitcoin/bips.git), which you can best get by cloning the repository. 
-
-You can also go to the file on github directly here [https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt](https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt)
-
-
-I have also included the file in this repository, simply copied from bitcoin core bips repository, [english_bip39.txt](english_bip39.txt).
-
-All the words are numbered from 1 to 2048. You can print this and look it up with thine own eyes, or you can use your favourite program to search for the line number, e.g. emacs or firefox. In emacs you can search by line number making for an easy lookup for each rolled number.
-
-In order to make it easier to look up a rolled number, I have made a new text file with the numbers explicitly numbered in [english_bip39_numbered.txt](english_bip39_numbered.txt). The python script to do this is included here as well [bip39_wordlist_line_numberer.py](bip39_wordlist_line_numberer.py)
-
-Being paranoid, it might be a good idea to search for a couple of different lists to make sure you have the correct one and not a tampered list.
 
 ## Feedback!
 
