@@ -114,11 +114,25 @@ print("Standard deviation of frequency divided by average  "
 print("Minimum of frequency: " + str(min(frequency_counter_d6)))
 print("Maximum of frequency: " + str(max(frequency_counter_d6)))
 
+# Adding average and standard deviation to the plot
+frequency_deviations_value = frequency_counter_d6 - average_frequency
+frequency_variance = np.average(frequency_deviations_value * frequency_deviations_value)
+frequency_standard_deviation = np.math.sqrt(frequency_variance)
+
 # Below we make the plot. 
 # An important thing to note here is that the minimum and maximum values
 # should show that no dice rolls where NOT rolled. If the minimum is zero,
 # the algorithm has failed to roll some values.
-plt.plot(frequency_counter_d6, label="Frequency")
+plt.plot(frequency_counter_d6,'.', label="Frequency")
+# plt.hlines(average_frequency, 0, 99, 'k', label="Average")
+# plt.hlines(average_frequency+frequency_standard_deviation, 0, 99, 'k') #, label="Average + standard deviation")
+# plt.hlines(average_frequency-frequency_standard_deviation, 0, 99, 'k', label="Standard deviation around average")
 plt.hlines(min(frequency_counter_d6), 0, len(frequency_counter_d6), 'r', label="Minimum value")
 plt.hlines(max(frequency_counter_d6), 0, len(frequency_counter_d6), 'g', label="Maximum value")
 plt.legend(loc="best")
+title = 'Frequency of rolled values from 0 to 2999 with %s' % no_rolls
+title += ' rolls,\n the average value is %.2f ' % average_frequency
+title += ' with a standard deviation of %.2f' %frequency_standard_deviation
+
+
+plt.title(title)
